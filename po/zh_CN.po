@@ -1,7 +1,6 @@
 msgid ""
 msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
-"PO-Revision-Date: 2022-09-08 20:21+0000\n"
 "X-Generator: fill-pot-po/2.1.9\n"
 
 #: src/preferences/pages/blacklist.ui:14
@@ -87,25 +86,41 @@ msgid "Border Color"
 msgstr "边框颜色"
 
 #: src/preferences/pages/general.ui:222
+msgid "Tweaks"
+msgstr "调整"
+
+#: src/preferences/pages/general.ui:247
+msgid "Try to add rounded corners to Kitty Terminal in Wayland"
+msgstr "在 Wayland 下为 Kitty 终端添加圆角效果"
+
+#: src/preferences/pages/general.ui:254
+msgid "Tweak clip paddings for Kitty Terminal"
+msgstr "调整 Kitty 终端的剪裁半径"
+
+#: src/preferences/pages/general.ui:284
+msgid "Add Settings Entry in right-click menu of Background"
+msgstr "将首选项入口添加到桌面背景的右键菜单"
+
+#: src/preferences/pages/general.ui:304
 msgid "Debug"
 msgstr "调试"
 
-#: src/preferences/pages/general.ui:247
+#: src/preferences/pages/general.ui:329
 #: src/preferences/widgets/reset_dialog.ts:68
 msgid "Enable Log"
 msgstr "启用日志"
 
-#: src/preferences/pages/general.ui:254
+#: src/preferences/pages/general.ui:336
 msgid ""
 "Run <i>journalctl -o cat -f /usr/bin/gnome-shell</i> in terminal to see the "
 "log"
 msgstr "可以在终端里运行 <i>journalctl -o cat -f /usr/bin/gnome-shell</i> 来查看日志"
 
-#: src/preferences/pages/general.ui:277
+#: src/preferences/pages/general.ui:359
 msgid "Reset Preferences"
 msgstr "重置设置"
 
-#: src/preferences/pages/general.ui:285
+#: src/preferences/pages/general.ui:367
 msgid "Open Reset Preferences Dialog"
 msgstr "打开重置对话框"
 
@@ -143,7 +158,7 @@ msgstr "垂直偏移"
 
 #: src/preferences/widgets/edit-shadow-window.ui:87
 msgid "Blur Offset"
-msgstr "模糊"
+msgstr "模糊半径"
 
 #: src/preferences/widgets/edit-shadow-window.ui:107
 msgid "Spread Radius"
@@ -152,6 +167,10 @@ msgstr "扩散半径"
 #: src/preferences/widgets/edit-shadow-window.ui:126
 msgid "Opacity"
 msgstr "透明度"
+
+#: src/preferences/widgets/edit_shadow_window.ts:58
+msgid "Edit Shadow for Rounded Corners Windows"
+msgstr "编辑圆角窗口阴影"
 
 #: src/preferences/widgets/reset_dialog.ts:64
 msgid "Focus Window Shadow Style"

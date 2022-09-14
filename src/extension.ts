@@ -2,6 +2,7 @@
 import { Point }                      from '@gi/Graphene'
 import * as Clutter                   from '@gi/Clutter'
 import * as GLib                      from '@gi/GLib'
+import { Settings }                   from '@gi/Gio'
 import { MonitorManager }             from '@gi/Meta'
 
 // gnome-shell modules
@@ -18,7 +19,7 @@ import { RoundedCornersManager }      from '@me/manager/rounded_corners_manager'
 import { stackMsg, _log }             from '@me/utils/log'
 import * as UI                        from '@me/utils/ui'
 import { connections }                from '@me/utils/connections'
-import { settings }                   from '@me/utils/settings'
+import { SchemasKeys, settings }      from '@me/utils/settings'
 import { Services }                   from '@me/dbus/services'
 import { LinearFilterEffect }         from '@me/effect/linear_filter_effect'
 import { init_translations }          from '@me/utils/i18n'
@@ -36,6 +37,7 @@ export class Extension {
     // The methods of gnome-shell to monkey patch
     private _orig_add_window     !: (_: Window) => void
     private _orig_create_windows !: () => void
+    private _orig_sync_stacking  !: () => void
     private _orig_size_changed   !: (wm: WM, actor: WindowActor) => void
     private _add_background_menu !: typeof BackgroundMenu.addBackgroundMenu
 
@@ -54,6 +56,7 @@ export class Extension {
         // extensions is disabled
         this._orig_add_window = WindowPreview.prototype._addWindow
         this._orig_create_windows = WorkspaceGroup.prototype._createWindows
+        this._orig_sync_stacking = WorkspaceGroup.prototype._syncStacking
         this._orig_size_changed = WindowManager.prototype._sizeChangeWindowDone
         this._add_background_menu = BackgroundMenu.addBackgroundMenu
 
@@ -233,10 +236,27 @@ export class Extension {
                                 clone.translation_z + 0.006)
                     )
 
+                    // Add reference shadow clone for clone actor, so that we
+                    // can restack position of shadow when we need
+                    ;(clone as WsAnimationActor)._shadow_clone = shadow_clone
+                    clone.bind_property ('visible', shadow_clone, 'visible', 0)
                     this.insert_child_below (shadow_clone, clone)
-                    this.set_child_below_sibling (shadow_clone, clone)
                 }
             })
+        }
+
+        // Let shadow actor always behind the window clone actor when we
+        // switch workspace by Ctrl+Alt+Left/Right
+        //
+        // Fix #55
+        WorkspaceGroup.prototype._syncStacking = function () {
+            self._orig_sync_stacking.apply (this, [])
+            for (const { clone } of this._windowRecords) {
+                const shadow_clone = (clone as WsAnimationActor)._shadow_clone
+                if (shadow_clone && shadow_clone.visible) {
+                    this.set_child_below_sibling (shadow_clone, clone)
+                }
+            }
         }
 
         // Window Size Changed
@@ -253,10 +273,14 @@ export class Extension {
             self._rounded_corners_manager._on_focus_changed (actor.meta_window)
         }
 
-        UI.SetupBackgroundMenu ()
+        if (settings ().enable_preferences_entry) {
+            UI.SetupBackgroundMenu ()
+        }
         BackgroundMenu.addBackgroundMenu = (actor, layout) => {
             this._add_background_menu (actor, layout)
-            UI.AddBackgroundMenuItem (actor._backgroundMenu)
+            if (settings ().enable_preferences_entry) {
+                UI.AddBackgroundMenuItem (actor._backgroundMenu)
+            }
         }
 
         // Gnome-shell will not disable extensions when _logout/shutdown/restart
@@ -269,6 +293,20 @@ export class Extension {
             this.disable ()
         })
 
+        connections
+            .get ()
+            .connect (
+                settings ().g_settings,
+                'changed',
+                (_: Settings, key: string) => {
+                    if ((key as SchemasKeys) === 'enable-preferences-entry') {
+                        settings ().enable_preferences_entry
+                            ? UI.SetupBackgroundMenu ()
+                            : UI.RestoreBackgroundMenu ()
+                    }
+                }
+            )
+
         _log ('Enabled')
     }
 
@@ -276,6 +314,7 @@ export class Extension {
         // Restore patched methods
         WindowPreview.prototype._addWindow = this._orig_add_window
         WorkspaceGroup.prototype._createWindows = this._orig_create_windows
+        WorkspaceGroup.prototype._syncStacking = this._orig_sync_stacking
         WindowManager.prototype._sizeChangeWindowDone = this._orig_size_changed
         BackgroundMenu.addBackgroundMenu = this._add_background_menu
 
@@ -382,3 +421,5 @@ const OverviewShadowActor = registerClass (
         }
     }
 )
+
+type WsAnimationActor = Clutter.Actor & { _shadow_clone?: Clutter.Actor }

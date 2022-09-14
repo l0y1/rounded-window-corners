@@ -28,8 +28,9 @@
       <default>false</default>
     </key>
 
-    <key name="border-width" type="u">
+    <key name="border-width" type="i">
       <summary>Border width for rounded corners window</summary>
+      <range min="-40" max="40"/>
       <default>0</default>
     </key>
 
@@ -97,6 +98,14 @@
 
     <key name="debug-mode" type="b">
       <summary>If enabled, extension will show debug info into journalctl</summary>
+      <default>false</default>
+    </key>
+
+    <key name="tweak-kitty-terminal" type="b">
+      <default>false</default>
+    </key>
+
+    <key name="enable-preferences-entry" type="b">
       <default>false</default>
     </key>
   </schema>
