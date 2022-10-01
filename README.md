@@ -8,7 +8,7 @@
 
 ## Features
 
-- Works with Gnome 40/41/42
+- Works with Gnome 40+
 - Custom border radius and clip paddings for windows
 - Black list for applications which draw window decoration itself
 - Custom shadow for rounded corners windows
@@ -50,6 +50,23 @@ yarn install && yarn ext:install
 ```
 
 In NixOS, you can use `nix-shell` to enter a development shell before run `yarn install`.
+
+#### Build dependencies
+
+You may need to install those packages when building this extensions. Feel free to open issues if you got error.
+
+#### Arch Linux
+
+```bash
+sudo pacman -S base gnome-shell gtk3 libadwaita gtk4 glib2 gobject-introspection
+```
+#### Ubuntu (22.04)
+
+```bash
+apt install gnome-shell-common libpolkit-agent-1-dev libmutter-10-dev \
+    libadwaita-1-dev libgtk-3-dev libgtk-4-dev libgraphene-1.0-dev    \
+    libgirepository1.0-dev libnm-dev libgcr-3-dev gettext
+```
 
 ### From Releases / Github Actions
 
